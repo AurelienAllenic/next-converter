@@ -1,0 +1,245 @@
+.containerConverter {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-size: 25px;
+    color: white;
+    background-image: url("/back-converter.jpg");
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-attachment: fixed;
+    overflow: auto;
+    padding: 100px 0;
+    height: 100vh;
+  }
+  .title {
+    background: rgba(0, 0, 0, 0.8);
+    width: fit-content;
+    padding: 10px;
+    margin-bottom: 20px;
+    margin-top: 50px;
+  }
+  .containerFormDownload {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+  }
+  .form {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .formGroup {
+    background: rgba(0, 0, 0, 0.8);
+    width: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+    border-radius: 15px;
+    padding: 15px;
+  }
+  .formLabel {
+    display: flex;
+    flex-direction: column;
+    transition: all ease-in-out 0.3s;
+    &:hover {
+      cursor: pointer;
+      color: grey;
+    }
+  }
+
+  .customFileUpload {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #007bff;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    input[type="file"] {
+      display: none;
+    }
+  }
+
+  .urlInputGroup {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-direction: column;
+    width: 50%;
+  }
+
+  .urlInput {
+    max-width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    &:hover {
+      outline: 2px solid red;
+      cursor: pointer;
+    }
+  }
+  
+  .urlInputButton {
+    padding: 10px 20px;
+    background: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all ease 0.3s;
+    &:hover {
+      background-color: black;
+      color: white;
+    }
+  }
+
+  .formatSelect {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  .formatSelectLabel {
+    transition: all ease-in-out 0.3s;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 10px;
+    border-radius: 5px;
+    &:hover {
+      cursor: pointer;
+      color: grey;
+    }
+  }
+
+  .formatSelectSelect {
+    padding: 5px;
+    border-radius: 5px;
+  }
+
+  .convertButton {
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: none;
+    outline: none;
+    transition: all ease 0.3s;
+    color: black;
+    &:hover {
+      background-color: black;
+      color: white;
+      cursor: pointer;
+    }
+  }
+
+  .errorMessage {
+    color: red;
+    margin-bottom: 20px;
+  }
+
+  .convertedFiles {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 20px;
+    border-radius: 15px;
+    margin-top: 10px;
+    width: 50%;
+  }
+
+  .convertedFilesTitle {
+    font-size: 24px;
+    margin-bottom: 10px;
+  }
+
+  .convertedFilesClose {
+    cursor: pointer;
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: white;
+  }
+
+  .convertedFilesList {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    padding: 10px 0;
+  }
+
+  .convertedFilesItem {
+    list-style: none;
+  }
+
+  .downloadButton {
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: none;
+    outline: none;
+    transition: all ease 0.3s;
+    &:hover {
+      background-color: black;
+      color: white;
+      cursor: pointer;
+    }
+  }
+
+  .zipButton {
+    background-color: white;
+    padding: 5px 10px;
+    border-radius: 15px;
+    border: none;
+    outline: none;
+    transition: all ease 0.3s;
+    &:hover {
+      background-color: black;
+      color: white;
+      cursor: pointer;
+    }
+  }
+
+  .inputGroup {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  @media (max-width: 768px) {
+    .containerConverter .formGroup {
+      width: 75%;
+    }
+  }
+  
+  @media (max-width: 659px) {
+    .containerConverter .containerFormDownload .formGroup,
+    .convertedFiles {
+      width: 75%;
+    }
+  }
+  
+  @media (max-width: 515px) {
+    .containerConverter .formGroup {
+      width: 95%;
+    }
+  
+    .containerConverter .title {
+      font-size: 25px;
+    }
+  
+    .containerConverter .formGroup .convertedFilesTitle {
+      font-size: 22px;
+    }
+  
+    .containerConverter .formGroup .formLabel {
+      font-size: 18px;
+    }
+  }
