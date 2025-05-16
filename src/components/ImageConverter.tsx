@@ -35,12 +35,21 @@ const ImageConverter = () => {
       }
       formData.append("format", format);
 
-      const response = await fetch("/api/convert", { method: "POST", body: formData });
+      const response = await fetch("/api/image-converter", {
+        method: "POST",
+        body: formData,
+      });
 
-      if (!response.ok) throw new Error("Erreur lors de la conversion.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erreur lors de la conversion.");
+      }
 
-      const data = await response.json();
-      setConvertedFiles(data.files || []);
+      const blob = await response.blob();
+      const objectUrl = URL.createObjectURL(blob);
+      const filename = `converted-image.${format}`;
+
+setConvertedFiles([{ path: objectUrl }]);
     } catch (error) {
       setErrorMessage((error as Error).message);
     }
@@ -60,10 +69,13 @@ const ImageConverter = () => {
         body: JSON.stringify({ imageUrl, format }),
       });
 
-      if (!response.ok) throw new Error("Échec de la conversion depuis l'URL.");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Échec de la conversion depuis l'URL.");
+      }
 
       const data = await response.json();
-      setConvertedFiles([data.file]);
+      setConvertedFiles([{ path: data.file }]);
     } catch (error) {
       setErrorMessage((error as Error).message);
     }
@@ -71,7 +83,7 @@ const ImageConverter = () => {
 
   return (
     <div className={styles.containerConverter}>
-      <h2 className={styles.title}>Convertisseur d&apos;images</h2>
+      <h2 className={styles.title}>Convertisseur d'images</h2>
       {errorMessage && <p className={styles.errorMessage}>{errorMessage}</p>}
       <div className={styles.containerFormDownload}>
         {convertedFiles.length === 0 && (
@@ -83,7 +95,13 @@ const ImageConverter = () => {
               </label>
               <label className={styles.customFileUpload}>
                 📁 Sélectionner un dossier
-                <input type="file" multiple directory="" webkitdirectory="" onChange={handleFileChange} />
+                <input
+                  type="file"
+                  multiple
+                  directory=""
+                  webkitdirectory=""
+                  onChange={handleFileChange}
+                />
               </label>
             </div>
 
@@ -94,13 +112,19 @@ const ImageConverter = () => {
                 value={imageUrl}
                 onChange={(e) => setImageUrl(e.target.value)}
               />
-              <button type="button" className={styles.urlInputButton} onClick={handleConvertUrl}>
+              <button
+                type="button"
+                className={styles.urlInputButton}
+                onClick={handleConvertUrl}
+              >
                 🔄 Convertir depuis une URL
               </button>
             </div>
 
             <div className={styles.formatSelect}>
-              <label className={styles.formatSelectLabel}>🎨 Choisir le format :</label>
+              <label className={styles.formatSelectLabel}>
+                🎨 Choisir le format :
+              </label>
               <select
                 className={styles.formatSelectSelect}
                 value={format}
@@ -120,15 +144,20 @@ const ImageConverter = () => {
         )}
         {convertedFiles.length > 0 && (
           <div className={styles.convertedFiles}>
-            <IoCloseSharp className={styles.convertedFilesClose} onClick={() => window.location.reload()} />
+            <IoCloseSharp
+              className={styles.convertedFilesClose}
+              onClick={() => window.location.reload()}
+            />
             <h3 className={styles.convertedFilesTitle}>📜 Fichiers convertis :</h3>
             <ul className={styles.convertedFilesList}>
               {convertedFiles.map((file, index) => (
                 <li className={styles.convertedFilesItem} key={index}>
                   <button
+                    className={styles.downloadButton}
                     onClick={async () => {
                       try {
                         const response = await fetch(file.path);
+                        if (!response.ok) throw new Error("Échec du téléchargement");
                         const blob = await response.blob();
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement("a");
@@ -140,6 +169,7 @@ const ImageConverter = () => {
                         window.URL.revokeObjectURL(url);
                       } catch (error) {
                         console.error("Erreur de téléchargement :", error);
+                        setErrorMessage("Échec du téléchargement du fichier.");
                       }
                     }}
                   >
@@ -148,7 +178,10 @@ const ImageConverter = () => {
                 </li>
               ))}
             </ul>
-            <button onClick={() => (window.location.href = "/api/download-zip")}>
+            <button
+              className={styles.zipButton}
+              onClick={() => (window.location.href = "/api/download-zip")}
+            >
               📦 Télécharger en ZIP
             </button>
           </div>

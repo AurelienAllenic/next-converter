@@ -52,10 +52,6 @@
     display: flex;
     flex-direction: column;
     transition: all ease-in-out 0.3s;
-    &:hover {
-      cursor: pointer;
-      color: grey;
-    }
   }
 
   .customFileUpload {
@@ -116,10 +112,6 @@
     background: rgba(0, 0, 0, 0.8);
     padding: 10px;
     border-radius: 5px;
-    &:hover {
-      cursor: pointer;
-      color: grey;
-    }
   }
 
   .formatSelectSelect {
@@ -185,6 +177,7 @@
     border: none;
     outline: none;
     transition: all ease 0.3s;
+    color: black;
     &:hover {
       background-color: black;
       color: white;
@@ -199,6 +192,7 @@
     border: none;
     outline: none;
     transition: all ease 0.3s;
+    color: black;
     &:hover {
       background-color: black;
       color: white;
