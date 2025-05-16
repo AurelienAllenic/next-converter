@@ -1,68 +1,40 @@
-import { NextResponse } from "next/server";
-import archiver from "archiver";
+// app/api/download-zip/route.ts
+import JSZip from "jszip";
 import { promises as fs } from "fs";
 import path from "path";
+import { NextResponse } from "next/server";
 
 const OUTPUT_FOLDER = path.join(process.cwd(), "public", "converted-images");
-const UPLOADS_FOLDER = path.join(process.cwd(), "public", "uploads");
 
 export async function GET() {
   try {
-    // Create ZIP archive
-    const zipName = "converted_images.zip";
-    const archive = archiver("zip", { zlib: { level: 9 } });
+    const zip = new JSZip();
 
-    // Set response headers
-    const response = new NextResponse(archive as any, {
+    const files = await fs.readdir(OUTPUT_FOLDER);
+
+    if (files.length === 0) {
+      return NextResponse.json({ error: "Aucun fichier à zipper." }, { status: 404 });
+    }
+
+    for (const filename of files) {
+      const filePath = path.join(OUTPUT_FOLDER, filename);
+      const fileData = await fs.readFile(filePath);
+      zip.file(filename, fileData);
+    }
+
+    const zipBlob = await zip.generateAsync({ type: "nodebuffer" });
+
+    return new Response(zipBlob, {
       status: 200,
       headers: {
         "Content-Type": "application/zip",
-        "Content-Disposition": `attachment; filename=${zipName}`,
+        "Content-Disposition": `attachment; filename="converted_images.zip"`,
       },
     });
-
-    // Add files to ZIP
-    const outputFiles = await fs.readdir(OUTPUT_FOLDER);
-    for (const file of outputFiles) {
-      const filePath = path.join(OUTPUT_FOLDER, file);
-      archive.file(filePath, { name: file });
-    }
-
-    const uploadFiles = await fs.readdir(UPLOADS_FOLDER);
-    for (const file of uploadFiles) {
-      const filePath = path.join(UPLOADS_FOLDER, file);
-      archive.file(filePath, { name: `originals/${file}` });
-    }
-
-    // Finalize archive
-    archive.finalize();
-
-    // Clean up files after ZIP is sent
-    archive.on("end", async () => {
-      try {
-        // Clean OUTPUT_FOLDER
-        const outputFiles = await fs.readdir(OUTPUT_FOLDER);
-        for (const file of outputFiles) {
-          await fs.unlink(path.join(OUTPUT_FOLDER, file));
-        }
-
-        // Clean UPLOADS_FOLDER
-        const uploadFiles = await fs.readdir(UPLOADS_FOLDER);
-        for (const file of uploadFiles) {
-          await fs.unlink(path.join(UPLOADS_FOLDER, file));
-        }
-
-        console.log("✅ Fichiers temporaires supprimés après ZIP.");
-      } catch (error) {
-        console.error("⚠️ Erreur lors de la suppression des fichiers temporaires :", error);
-      }
-    });
-
-    return response;
-  } catch (error) {
-    console.error("❌ Erreur lors de la création du ZIP :", error);
+  } catch (err) {
+    console.error("Erreur ZIP :", err);
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: "Erreur lors de la création du ZIP." },
       { status: 500 }
     );
   }

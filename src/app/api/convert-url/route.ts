@@ -3,6 +3,7 @@ import axios from "axios";
 import sharp from "sharp";
 import fs from "fs";
 import path from "path";
+import { readdirSync, unlinkSync } from "fs";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -30,8 +31,16 @@ export async function POST(req: Request) {
 
     const format = formatInput === "jpg" ? "jpeg" : formatInput;
 
+    // 🔽 Assurer que le dossier existe
     if (!fs.existsSync(OUTPUT_FOLDER)) {
       fs.mkdirSync(OUTPUT_FOLDER, { recursive: true });
+    } else {
+      // 🔽 Vider le dossier existant
+      const files = readdirSync(OUTPUT_FOLDER);
+      for (const file of files) {
+        unlinkSync(path.join(OUTPUT_FOLDER, file));
+      }
+      console.log("[LOG] Dossier 'converted-images' vidé avant nouvelle conversion");
     }
 
     const response = await axios.get(imageUrl, {

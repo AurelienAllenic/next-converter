@@ -22,38 +22,62 @@ const ImageConverter = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
-
+  
     if (!selectedFiles || selectedFiles.length === 0) {
       setErrorMessage("Sélectionne au moins un fichier.");
       return;
     }
-
+  
     try {
       const formData = new FormData();
       for (const file of selectedFiles) {
         formData.append("images", file);
       }
       formData.append("format", format);
-
-      const response = await fetch("/api/image-converter", {
-        method: "POST",
-        body: formData,
-      });
-
+  
+      const isFolder = [...selectedFiles].some((file) => file.webkitRelativePath);
+  
+      const response = await fetch(
+        isFolder ? "/api/convert-folder" : "/api/image-converter",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+  
       if (!response.ok) {
+        // Ici on est sûrs que c’est du JSON d’erreur
         const errorData = await response.json();
         throw new Error(errorData.error || "Erreur lors de la conversion.");
       }
-
-      const blob = await response.blob();
-      const objectUrl = URL.createObjectURL(blob);
-      const filename = `converted-image.${format}`;
-
-setConvertedFiles([{ path: objectUrl }]);
+  
+      // Lire le corps en ArrayBuffer (brut)
+      const buffer = await response.arrayBuffer();
+  
+      // Essayer de parser ce buffer en JSON
+      let data;
+      try {
+        const text = new TextDecoder().decode(buffer);
+        data = JSON.parse(text);
+  
+        // Si JSON correct et tableau de fichiers
+        if (!Array.isArray(data.files) || data.files.length === 0) {
+          throw new Error("Aucun fichier converti reçu.");
+        }
+        setConvertedFiles(data.files);
+      } catch {
+        // Si ce n’est pas du JSON => on a un blob (image seule)
+        const blob = new Blob([buffer], { type: response.headers.get("Content-Type") || "image/*" });
+        const objectUrl = URL.createObjectURL(blob);
+        const filename = `converted-image.${format}`;
+        setConvertedFiles([{ path: objectUrl, name: filename }]);
+      }
     } catch (error) {
       setErrorMessage((error as Error).message);
     }
   };
+  
+  
 
   const handleConvertUrl = async () => {
     setErrorMessage("");
