@@ -122,9 +122,12 @@ const ImageConverter = () => {
                 <input
                   type="file"
                   multiple
-                  // @ts-ignore: Propriété non standard webkitdirectory
-                  webkitdirectory
                   onChange={handleFileChange}
+                  ref={(ref) => {
+                    if (ref) {
+                      ref.setAttribute("webkitdirectory", "");
+                    }
+                  }}
                 />
               </label>
             </div>
