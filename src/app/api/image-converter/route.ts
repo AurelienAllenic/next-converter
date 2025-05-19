@@ -29,17 +29,32 @@ export async function POST(req: Request): Promise<NextResponse> {
     }
 
     const validFormats = ["webp", "jpg", "png", "gif"] as const;
-    type ValidFormat = typeof validFormats[number];
+    type ValidFormat = (typeof validFormats)[number];
+
     if (!validFormats.includes(formatInput as ValidFormat)) {
       console.error("[ERROR] Unsupported format:", formatInput);
-      return NextResponse.json({ error: "Unsupported format" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Unsupported format" },
+        { status: 400 }
+      );
     }
 
-    const format: keyof sharp.FormatEnum = formatInput === "jpg" ? "jpeg" : formatInput;
+    const formatMap: Record<ValidFormat, keyof sharp.FormatEnum> = {
+      webp: "webp",
+      jpg: "jpeg",
+      png: "png",
+      gif: "gif",
+    };
+
+    const format: keyof sharp.FormatEnum =
+      formatMap[formatInput as ValidFormat];
 
     if (file.size > 10 * 1024 * 1024) {
       console.error("[ERROR] File too large:", file.size);
-      return NextResponse.json({ error: "File too large (max 10MB)" }, { status: 400 });
+      return NextResponse.json(
+        { error: "File too large (max 10MB)" },
+        { status: 400 }
+      );
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -47,7 +62,9 @@ export async function POST(req: Request): Promise<NextResponse> {
     console.log("[LOG] Memory (before sharp):", process.memoryUsage());
 
     const sharpInstance = sharp(buffer, { failOn: "none" });
-    const outputBuffer = await sharpInstance.toFormat(format, { quality: 80 }).toBuffer();
+    const outputBuffer = await sharpInstance
+      .toFormat(format, { quality: 80 })
+      .toBuffer();
     console.log("[LOG] Image converted - buffer size:", outputBuffer.length);
 
     // 🔽 Nettoyage du dossier avant d’écrire le nouveau fichier
@@ -55,12 +72,13 @@ export async function POST(req: Request): Promise<NextResponse> {
     if (!existsSync(outputDir)) {
       await mkdir(outputDir, { recursive: true });
     } else {
-      // Supprimer tous les fichiers existants dans le dossier
       const existingFiles = await readdir(outputDir);
       for (const fileName of existingFiles) {
         await unlink(path.join(outputDir, fileName));
       }
-      console.log("[LOG] Dossier 'converted-images' vidé avant nouvelle conversion");
+      console.log(
+        "[LOG] Dossier 'converted-images' vidé avant nouvelle conversion"
+      );
     }
 
     const outputPath = path.join(outputDir, `converted.${format}`);
