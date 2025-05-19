@@ -8,7 +8,7 @@ import { readdirSync, unlinkSync } from "fs";
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const OUTPUT_FOLDER = path.join(process.cwd(), "public", "converted-images");
+const OUTPUT_FOLDER = path.join("/tmp", "converted-images");
 
 export async function POST(req: Request) {
   console.log("----- Image URL Conversion Start -----");
@@ -19,14 +19,20 @@ export async function POST(req: Request) {
     const { imageUrl, format: formatInput } = await req.json();
 
     if (!imageUrl || !formatInput) {
-      return NextResponse.json({ error: "URL et format requis" }, { status: 400 });
+      return NextResponse.json(
+        { error: "URL et format requis" },
+        { status: 400 }
+      );
     }
 
     const validFormats = ["webp", "jpg", "png", "gif"] as const;
-    type ValidFormat = typeof validFormats[number];
+    type ValidFormat = (typeof validFormats)[number];
 
     if (!validFormats.includes(formatInput as ValidFormat)) {
-      return NextResponse.json({ error: "Format non supporté" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Format non supporté" },
+        { status: 400 }
+      );
     }
 
     const format = formatInput === "jpg" ? "jpeg" : formatInput;
@@ -40,7 +46,9 @@ export async function POST(req: Request) {
       for (const file of files) {
         unlinkSync(path.join(OUTPUT_FOLDER, file));
       }
-      console.log("[LOG] Dossier 'converted-images' vidé avant nouvelle conversion");
+      console.log(
+        "[LOG] Dossier 'converted-images' vidé avant nouvelle conversion"
+      );
     }
 
     const response = await axios.get(imageUrl, {
@@ -54,7 +62,9 @@ export async function POST(req: Request) {
     console.log("[LOG] Memory (before sharp):", process.memoryUsage());
 
     const sharpInstance = sharp(buffer, { failOn: "none" });
-    const outputBuffer = await sharpInstance.toFormat(format, { quality: 80 }).toBuffer();
+    const outputBuffer = await sharpInstance
+      .toFormat(format, { quality: 80 })
+      .toBuffer();
 
     const fileName = path.basename(imageUrl).split("?")[0];
     const cleanFileName = path.parse(fileName).name;
