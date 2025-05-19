@@ -1,20 +1,25 @@
-// app/api/download-zip/route.ts
 import JSZip from "jszip";
 import { promises as fs } from "fs";
 import path from "path";
 import { NextResponse } from "next/server";
 
-const OUTPUT_FOLDER = path.join(process.cwd(), "public", "converted-images");
+const OUTPUT_FOLDER = path.join("/tmp", "converted-images");
 
 export async function GET() {
   try {
-    const zip = new JSZip();
+    // Vérifie ou crée le dossier temporaire
+    await fs.mkdir(OUTPUT_FOLDER, { recursive: true });
 
     const files = await fs.readdir(OUTPUT_FOLDER);
 
     if (files.length === 0) {
-      return NextResponse.json({ error: "Aucun fichier à zipper." }, { status: 404 });
+      return NextResponse.json(
+        { error: "Aucun fichier à zipper." },
+        { status: 404 }
+      );
     }
+
+    const zip = new JSZip();
 
     for (const filename of files) {
       const filePath = path.join(OUTPUT_FOLDER, filename);
