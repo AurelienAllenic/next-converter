@@ -1,10 +1,10 @@
-import NextAuth from "next-auth";
+import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import dbConnect from "@/app/lib/mongodb";
 import User from "@/app/models/User";
 import bcrypt from "bcryptjs";
 
-export const authOptions = {
+export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       name: "Credentials",
@@ -17,21 +17,31 @@ export const authOptions = {
 
         console.log("Credentials:", credentials);
 
-        const user = await User.findOne({ email: credentials?.email });
+        // Ensure credentials are defined
+        if (!credentials?.email || !credentials?.password) {
+          return null;
+        }
+
+        const user = await User.findOne({ email: credentials.email });
         console.log("User found:", user);
 
-        if (!user) return null;
+        if (!user) {
+          return null;
+        }
 
         const isValid = await bcrypt.compare(
-          credentials!.password,
+          credentials.password,
           user.password
         );
         console.log("Password valid:", isValid);
 
-        if (!isValid) return null;
+        if (!isValid) {
+          return null;
+        }
 
+        // Return user object with typed properties
         return {
-          id: user._id.toString(),
+          id: user._id.toString(), // _id will be typed correctly after Step 2
           name: user.name,
           email: user.email,
         };
@@ -39,13 +49,12 @@ export const authOptions = {
     }),
   ],
   session: {
-    strategy: "jwt",
+    strategy: "jwt" as const, // Explicitly type as "jwt" literal
   },
   pages: {
-    signIn: "/login", // page personnalisée login
+    signIn: "/login",
   },
   secret: process.env.NEXTAUTH_SECRET,
 };
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+export default NextAuth(authOptions);
