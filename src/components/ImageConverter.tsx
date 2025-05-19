@@ -6,6 +6,7 @@ import styles from "./imageConverter.module.scss";
 
 interface ConvertedFile {
   path: string;
+  name?: string; // Ajouté pour corriger l'erreur TS
 }
 
 const ImageConverter = () => {
@@ -22,21 +23,23 @@ const ImageConverter = () => {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setErrorMessage("");
-  
+
     if (!selectedFiles || selectedFiles.length === 0) {
       setErrorMessage("Sélectionne au moins un fichier.");
       return;
     }
-  
+
     try {
       const formData = new FormData();
       for (const file of selectedFiles) {
         formData.append("images", file);
       }
       formData.append("format", format);
-  
-      const isFolder = [...selectedFiles].some((file) => file.webkitRelativePath);
-  
+
+      const isFolder = [...selectedFiles].some(
+        (file) => file.webkitRelativePath
+      );
+
       const response = await fetch(
         isFolder ? "/api/convert-folder" : "/api/image-converter",
         {
@@ -44,30 +47,30 @@ const ImageConverter = () => {
           body: formData,
         }
       );
-  
+
       if (!response.ok) {
-        // Ici on est sûrs que c’est du JSON d’erreur
         const errorData = await response.json();
         throw new Error(errorData.error || "Erreur lors de la conversion.");
       }
-  
+
       // Lire le corps en ArrayBuffer (brut)
       const buffer = await response.arrayBuffer();
-  
+
       // Essayer de parser ce buffer en JSON
       let data;
       try {
         const text = new TextDecoder().decode(buffer);
         data = JSON.parse(text);
-  
-        // Si JSON correct et tableau de fichiers
+
         if (!Array.isArray(data.files) || data.files.length === 0) {
           throw new Error("Aucun fichier converti reçu.");
         }
         setConvertedFiles(data.files);
       } catch {
-        // Si ce n’est pas du JSON => on a un blob (image seule)
-        const blob = new Blob([buffer], { type: response.headers.get("Content-Type") || "image/*" });
+        // Si ce n’est pas du JSON => blob (image seule)
+        const blob = new Blob([buffer], {
+          type: response.headers.get("Content-Type") || "image/*",
+        });
         const objectUrl = URL.createObjectURL(blob);
         const filename = `converted-image.${format}`;
         setConvertedFiles([{ path: objectUrl, name: filename }]);
@@ -76,8 +79,6 @@ const ImageConverter = () => {
       setErrorMessage((error as Error).message);
     }
   };
-  
-  
 
   const handleConvertUrl = async () => {
     setErrorMessage("");
@@ -95,7 +96,9 @@ const ImageConverter = () => {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || "Échec de la conversion depuis l'URL.");
+        throw new Error(
+          errorData.error || "Échec de la conversion depuis l'URL."
+        );
       }
 
       const data = await response.json();
@@ -166,13 +169,16 @@ const ImageConverter = () => {
             </button>
           </form>
         )}
+
         {convertedFiles.length > 0 && (
           <div className={styles.convertedFiles}>
             <IoCloseSharp
               className={styles.convertedFilesClose}
               onClick={() => window.location.reload()}
             />
-            <h3 className={styles.convertedFilesTitle}>📜 Fichiers convertis :</h3>
+            <h3 className={styles.convertedFilesTitle}>
+              📜 Fichiers convertis :
+            </h3>
             <ul className={styles.convertedFilesList}>
               {convertedFiles.map((file, index) => (
                 <li className={styles.convertedFilesItem} key={index}>
@@ -181,12 +187,16 @@ const ImageConverter = () => {
                     onClick={async () => {
                       try {
                         const response = await fetch(file.path);
-                        if (!response.ok) throw new Error("Échec du téléchargement");
+                        if (!response.ok)
+                          throw new Error("Échec du téléchargement");
                         const blob = await response.blob();
                         const url = window.URL.createObjectURL(blob);
                         const a = document.createElement("a");
                         a.href = url;
-                        a.download = file.path.split("/").pop() || "converted-file";
+                        a.download =
+                          file.name ||
+                          file.path.split("/").pop() ||
+                          "converted-file";
                         document.body.appendChild(a);
                         a.click();
                         document.body.removeChild(a);
@@ -197,7 +207,7 @@ const ImageConverter = () => {
                       }
                     }}
                   >
-                    📥 Télécharger {file.path.split("/").pop()}
+                    📥 Télécharger {file.name || file.path.split("/").pop()}
                   </button>
                 </li>
               ))}
