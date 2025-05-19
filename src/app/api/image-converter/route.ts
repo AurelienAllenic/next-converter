@@ -68,7 +68,8 @@ export async function POST(req: Request): Promise<NextResponse> {
     console.log("[LOG] Image converted - buffer size:", outputBuffer.length);
 
     // 🔽 Nettoyage du dossier avant d’écrire le nouveau fichier
-    const outputDir = path.join(process.cwd(), "public", "converted-images");
+    const outputDir = "/tmp/converted-images";
+
     if (!existsSync(outputDir)) {
       await mkdir(outputDir, { recursive: true });
     } else {

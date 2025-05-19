@@ -46,7 +46,8 @@ export async function POST(req: Request): Promise<NextResponse> {
     const format: keyof sharp.FormatEnum =
       formatMap[formatInput as ValidFormat];
 
-    const outputDir = path.join(process.cwd(), "public", "converted-images");
+    const outputDir = "/tmp/converted-images";
+
     if (!existsSync(outputDir)) {
       await mkdir(outputDir, { recursive: true });
     } else {
