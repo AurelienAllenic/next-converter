@@ -6,7 +6,7 @@ import styles from "./imageConverter.module.scss";
 
 interface ConvertedFile {
   path: string;
-  name?: string; // Ajouté pour corriger l'erreur TS
+  name?: string;
 }
 
 const ImageConverter = () => {
@@ -53,10 +53,8 @@ const ImageConverter = () => {
         throw new Error(errorData.error || "Erreur lors de la conversion.");
       }
 
-      // Lire le corps en ArrayBuffer (brut)
       const buffer = await response.arrayBuffer();
 
-      // Essayer de parser ce buffer en JSON
       let data;
       try {
         const text = new TextDecoder().decode(buffer);
@@ -67,7 +65,6 @@ const ImageConverter = () => {
         }
         setConvertedFiles(data.files);
       } catch {
-        // Si ce n’est pas du JSON => blob (image seule)
         const blob = new Blob([buffer], {
           type: response.headers.get("Content-Type") || "image/*",
         });
@@ -125,8 +122,8 @@ const ImageConverter = () => {
                 <input
                   type="file"
                   multiple
-                  directory=""
-                  webkitdirectory=""
+                  // @ts-ignore: Propriété non standard webkitdirectory
+                  webkitdirectory
                   onChange={handleFileChange}
                 />
               </label>
