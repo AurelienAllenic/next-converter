@@ -117,19 +117,21 @@ const ImageConverter = () => {
                 📂 Sélectionner des fichiers
                 <input type="file" multiple onChange={handleFileChange} />
               </label>
-              <label className={styles.customFileUpload}>
-                📁 Sélectionner un dossier
-                <input
-                  type="file"
-                  multiple
-                  onChange={handleFileChange}
-                  ref={(ref) => {
-                    if (ref) {
-                      ref.setAttribute("webkitdirectory", "");
-                    }
-                  }}
-                />
-              </label>
+              {/*
+                <label className={styles.customFileUpload}>
+                  📁 Sélectionner un dossier
+                  <input
+                    type="file"
+                    multiple
+                    onChange={handleFileChange}
+                    ref={(ref) => {
+                      if (ref) {
+                        ref.setAttribute("webkitdirectory", "");
+                      }
+                    }}
+                  />
+                </label>
+                */}
             </div>
 
             <div className={styles.urlInputGroup}>
