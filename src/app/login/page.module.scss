@@ -1,0 +1,50 @@
+.loginContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  width: 100%;
+  gap: 50px;
+  position: fixed;
+  s .loginTitle {
+    font-size: 50px;
+    font-weight: 700;
+    text-align: center;
+  }
+  .loginForm {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    .loginInput {
+      width: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      gap: 10px;
+      background: rgba(0, 0, 0, 0.8);
+      border-radius: 15px;
+      padding: 15px;
+      outline: none;
+      border: none;
+    }
+    .buttonLogin {
+      background-color: white;
+      padding: 10px 15px;
+      border-radius: 15px;
+      border: none;
+      outline: none;
+      transition: all ease 0.3s;
+      color: black;
+      &:hover {
+        background-color: black;
+        color: white;
+        cursor: pointer;
+      }
+    }
+  }
+}

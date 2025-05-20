@@ -2,6 +2,7 @@
 
 import { signIn } from "next-auth/react";
 import { useState } from "react";
+import styles from "./page.module.scss";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -34,15 +35,16 @@ export default function LoginPage() {
   };
 
   return (
-    <div>
-      <h1>Page de connexion</h1>
-      <form onSubmit={handleSubmit}>
+    <div className={styles.loginContainer}>
+      <h1 className={styles.loginTitle}>Page de connexion</h1>
+      <form onSubmit={handleSubmit} className={styles.loginForm}>
         <input
           type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          className={styles.loginInput}
         />
         <input
           type="password"
@@ -50,8 +52,11 @@ export default function LoginPage() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           required
+          className={styles.loginInput}
         />
-        <button type="submit">Se connecter</button>
+        <button type="submit" className={styles.buttonLogin}>
+          Se connecter
+        </button>
         {error && <p style={{ color: "red" }}>{error}</p>}
       </form>
     </div>
