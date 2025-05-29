@@ -9,3 +9,11 @@
   box-sizing: border-box;
   margin: 0;
 }
+.container_options{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  gap: 10px;
+}

@@ -4,6 +4,9 @@ import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import ImageConverter from "@/components/ImageConverter";
+import QrCodeGenerator from "@/components/QrCodeGenerator";
+import Link from "next/link";
+import styles from './page.module.css'
 
 export default function Home() {
   const { data: session, status } = useSession();
@@ -31,8 +34,9 @@ export default function Home() {
 
   console.log("Rendu de ImageConverter");
   return (
-    <div>
-      <ImageConverter />
+    <div className={styles.container_options}>
+      <Link href='/image-converter' >Image Converter</Link>
+      <Link href='/qr-code-generator' >QrCodeGenerator</Link>
     </div>
   );
 }
