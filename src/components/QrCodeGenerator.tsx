@@ -8,9 +8,9 @@ export default function QrCodeGenerator() {
   const [size, setSize] = useState(256);
   const [fgColor, setFgColor] = useState('#000000');
   const [bgColor, setBgColor] = useState('#ffffff');
-  const [imageUrl, setImageUrl] = useState('');
   const [imageFile, setImageFile] = useState<string | null>(null);
-  const [imageSize, setImageSize] = useState(0.3);
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageSize, setImageSize] = useState(0.2); // Réduit pour meilleure lisibilité
   const [imageBorderRadius, setImageBorderRadius] = useState(0);
 
   const qrRef = useRef<HTMLCanvasElement>(null);
@@ -22,6 +22,7 @@ export default function QrCodeGenerator() {
       const reader = new FileReader();
       reader.onload = () => {
         setImageFile(reader.result as string);
+        setImageUrl(''); // Réinitialiser l'URL de l'image si un fichier est chargé
       };
       reader.readAsDataURL(file);
     } else {
@@ -84,15 +85,20 @@ export default function QrCodeGenerator() {
           // Dessiner l'image
           const img = new Image();
           img.src = imageFile || imageUrl || '';
-          img.crossOrigin = 'Anonymous'; // Pour éviter les problèmes CORS avec les images externes
-          img.onload = () => {
+          img.crossOrigin = 'Anonymous';
+          if (img.complete) {
             context.drawImage(img, centerX, centerY, imageWidth, imageHeight);
             context.restore();
-          };
-          img.onerror = () => {
-            console.error('Erreur lors du chargement de l’image');
-            context.restore();
-          };
+          } else {
+            img.onload = () => {
+              context.drawImage(img, centerX, centerY, imageWidth, imageHeight);
+              context.restore();
+            };
+            img.onerror = () => {
+              console.error('Erreur lors du chargement de l’image');
+              context.restore();
+            };
+          }
         }
       }
     }
@@ -108,7 +114,7 @@ export default function QrCodeGenerator() {
         link.download = 'qrcode.png';
         link.click();
       }
-    }, 200); // Délai pour laisser le temps au rendu
+    }, 200);
   };
 
   useEffect(() => {
@@ -136,14 +142,16 @@ export default function QrCodeGenerator() {
         </div>
 
         <div className={styles.formGroup}>
-          <label>Taille (px)</label>
+          <label>Taille du QR Code</label>
           <input
-            type="number"
+            type="range"
             value={size}
             onChange={(e) => setSize(Number(e.target.value))}
             min="100"
             max="1000"
+            step="1"
           />
+          <div className={styles.sliderValue}>{size} px</div>
         </div>
 
         <div className={styles.formGroup}>
@@ -185,31 +193,34 @@ export default function QrCodeGenerator() {
         </div>
 
         <div className={styles.formGroup}>
-          <label>Taille de l'image (0 à 0.5)</label>
+          <label>Taille de l'image</label>
           <input
-            type="number"
-            step="0.01"
+            type="range"
             value={imageSize}
             onChange={(e) => setImageSize(Number(e.target.value))}
             min="0"
-            max="0.5"
+            max="0.3"
+            step="0.01"
           />
+          <div className={styles.sliderValue}>{(imageSize * 100).toFixed(0)}%</div>
         </div>
 
-        <div className={styles.formGroup}>
-          <label>Border Radius de l'image (px)</label>
-          <input
-            type="number"
-            value={imageBorderRadius}
-            onChange={(e) => setImageBorderRadius(Number(e.target.value))}
-            min="0"
-            max="50"
-            disabled={!(imageFile || imageUrl)}
-          />
-        </div>
+        {(imageFile || imageUrl) && (
+          <div className={styles.formGroup}>
+            <label>Border Radius de l'image</label>
+            <input
+              type="range"
+              value={imageBorderRadius}
+              onChange={(e) => setImageBorderRadius(Number(e.target.value))}
+              min="0"
+              max="50"
+              step="1"
+            />
+            <div className={styles.sliderValue}>{imageBorderRadius} px</div>
+          </div>
+        )}
 
         <div className={styles.qrContainer}>
-          {/* Canvas caché pour générer le QR Code de base */}
           <div style={{ display: 'none' }}>
             <QRCodeCanvas
               ref={hiddenQrRef}
@@ -218,10 +229,10 @@ export default function QrCodeGenerator() {
               size={size}
               fgColor={fgColor}
               bgColor={bgColor}
-              imageSettings={undefined} // Pas d'image ici, on la gère manuellement
+              level="H"
+              imageSettings={undefined}
             />
           </div>
-          {/* Canvas visible pour le rendu personnalisé */}
           <canvas
             ref={qrRef}
             id="qrCode"
