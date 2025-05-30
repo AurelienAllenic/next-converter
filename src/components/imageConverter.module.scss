@@ -15,6 +15,27 @@
     padding: 100px 0;
     height: 100vh;
   }
+  .link {
+    margin-top: 20px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .linkText {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    background: rgba(0, 0, 0, 0.8);
+    padding: 15px;
+    border-radius: 15px;
+  }
+  
+  .linkText:hover {
+    text-decoration: underline;
+  }
   .title {
     background: rgba(0, 0, 0, 0.8);
     width: fit-content;

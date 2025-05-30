@@ -35,8 +35,9 @@ export default function Home() {
   console.log("Rendu de ImageConverter");
   return (
     <div className={styles.container_options}>
-      <Link href='/image-converter' >Image Converter</Link>
-      <Link href='/qr-code-generator' >QrCodeGenerator</Link>
+      <Link href='/image-converter'>Image Converter</Link>
+      <Link href='/qr-code-generator'>QrCodeGenerator</Link>
+      <Link href='/video-to-gif' >Video to GIF</Link>
     </div>
   );
 }

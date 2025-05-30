@@ -245,6 +245,16 @@ export default function QrCodeGenerator() {
         <button className={styles.downloadButton} onClick={handleDownload}>
           Télécharger le QR Code
         </button>
+        <div className={styles.link}>
+          <a href="/video-to-gif" className={styles.linkText}>
+            Go to Video to GIF
+          </a>
+        </div>
+        <div className={styles.link}>
+          <a href="/image-converter" className={styles.linkText}>
+            Go to Image Converter
+          </a>
+        </div>
       </div>
     </div>
   );

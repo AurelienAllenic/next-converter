@@ -15,5 +15,18 @@
   justify-content: center;
   align-items: center;
   height: 100vh;
-  gap: 10px;
+  gap: 15px;
+}
+.container_options a {
+  background-color: #fff;
+  border-radius: 15px;
+  padding: 15px;
+  color: #000;
+  transition: all ease-in 0.2s;
+  width: 200px;
+  text-align: center;
+}
+.container_options a:hover{
+  transition: all ease-in 0.2s;
+  transform: scale(1.02);
 }

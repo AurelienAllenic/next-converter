@@ -9,6 +9,8 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@ffmpeg/ffmpeg": "^0.12.15",
+    "@ffmpeg/util": "^0.12.2",
     "archiver": "^7.0.1",
     "axios": "^1.9.0",
     "bcryptjs": "^3.0.2",

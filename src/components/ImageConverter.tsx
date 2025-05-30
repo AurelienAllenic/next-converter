@@ -169,6 +169,14 @@ const ImageConverter = () => {
             <button type="submit" className={styles.convertButton}>
               ⚡ Convertir
             </button>
+            <div className={styles.link}>
+              <a href="/qr-code-generator" className={styles.linkText}>
+                Go to QrCode Generator
+              </a>
+              <a href="/video-to-gif" className={styles.linkText}>
+                Go to Video to GIF
+              </a>
+            </div>
           </form>
         )}
 
