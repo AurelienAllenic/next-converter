@@ -24,7 +24,7 @@ export default function Home() {
 
   if (status === "loading") {
     console.log("Affichage de l'écran de chargement");
-    return <p>Chargement...</p>;
+    return <div className={styles.loadingContainer}><p className={styles.loadingText}>Chargement...</p></div>;
   }
 
   if (!session) {

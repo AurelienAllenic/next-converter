@@ -30,3 +30,15 @@
   transition: all ease-in 0.2s;
   transform: scale(1.02);
 }
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #f0f2f5;
+}
+.loadingText {
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+}
