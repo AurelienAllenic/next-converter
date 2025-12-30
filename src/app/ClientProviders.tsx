@@ -1,7 +1,6 @@
 "use client";
 
 import { Geist, Geist_Mono } from "next/font/google";
-import { SessionProvider } from "next-auth/react";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,10 +18,8 @@ export default function ClientProviders({
   children: React.ReactNode;
 }) {
   return (
-    <SessionProvider>
       <div className={`${geistSans.variable} ${geistMono.variable}`}>
         {children}
       </div>
-    </SessionProvider>
   );
 }
