@@ -1,0 +1,18 @@
+# Next Converter
+
+> Outils web gratuits, sans inscription : convertisseur d'images, générateur de QR code personnalisé, conversion vidéo → GIF.
+
+Next Converter est une petite suite d'outils de conversion développée par Aurélien Allenic (https://aurelienallenic.fr).
+Les fichiers ne sont jamais stockés : les images sont converties en mémoire côté serveur, les GIF sont générés
+dans le navigateur avec FFmpeg (WebAssembly).
+
+## Outils
+
+- [Convertisseur d'images](/image-converter) : convertit JPG, PNG, WebP, GIF, AVIF, TIFF, SVG, HEIC vers WebP, JPG, PNG, AVIF, GIF ou TIFF. Conversion par lot, réglage de la qualité, conversion depuis une URL, export ZIP.
+- [Générateur de QR code](/qr-code-generator) : QR code haute résolution (jusqu'à 4096 px), couleurs personnalisées, logo centré avec arrondi, export PNG.
+- [Vidéo vers GIF](/video-to-gif) : MP4/WebM/MOV → GIF, découpe début/fin, vitesse, fréquence d'images, largeur, palette optimisée. 100 % local.
+
+## Technique
+
+- Next.js (App Router), React, TypeScript, sharp, @ffmpeg/ffmpeg, qrcode.react
+- Hébergé sur Vercel

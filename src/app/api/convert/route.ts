@@ -1,64 +1,66 @@
-import { NextRequest, NextResponse } from "next/server";
-import sharp from "sharp";
-import { promises as fs } from "fs";
-import path from "path";
+import { NextResponse } from "next/server";
+import { convertImageBuffer } from "@/lib/convertImage";
+import {
+  MAX_FILE_BYTES,
+  OUTPUT_FORMATS,
+  isOutputFormat,
+  outputFileName,
+} from "@/lib/formats";
 
-const OUTPUT_FOLDER = path.join(process.cwd(), "public", "converted-images");
-const UPLOADS_FOLDER = path.join(process.cwd(), "public", "uploads");
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const maxDuration = 30;
 
-export async function POST(req: NextRequest) {
+/**
+ * POST /api/convert
+ * multipart/form-data : image (1 fichier), format, quality
+ * Renvoie directement le binaire converti avec le bon nom de fichier.
+ * Un fichier par requête : pas d'état serveur, pas de /tmp, 100 % compatible Vercel.
+ */
+export async function POST(req: Request) {
   try {
-    // Create folders if they don't exist
-    await fs.mkdir(OUTPUT_FOLDER, { recursive: true });
-    await fs.mkdir(UPLOADS_FOLDER, { recursive: true });
-
-    // Parse form data
     const formData = await req.formData();
-    const images = formData.getAll("images") as File[];
-    const format = formData.get("format") as string;
+    const file = formData.get("image");
+    const format = formData.get("format");
+    const quality = Number(formData.get("quality") ?? 82);
 
-    if (!images || images.length === 0 || !format) {
-      return NextResponse.json({ error: "Images et format requis" }, { status: 400 });
+    if (!(file instanceof File)) {
+      return NextResponse.json({ error: "Aucun fichier reçu." }, { status: 400 });
+    }
+    if (!isOutputFormat(format)) {
+      return NextResponse.json({ error: "Format de sortie non supporté." }, { status: 400 });
+    }
+    if (file.size === 0) {
+      return NextResponse.json({ error: "Le fichier est vide." }, { status: 400 });
+    }
+    if (file.size > MAX_FILE_BYTES) {
+      return NextResponse.json(
+        { error: `Fichier trop volumineux (max ${MAX_FILE_BYTES / 1024 / 1024} Mo).` },
+        { status: 413 }
+      );
     }
 
-    const validFormats = ["webp", "jpg", "png", "gif"];
-    if (!validFormats.includes(format)) {
-      return NextResponse.json({ error: "Format non supporté" }, { status: 400 });
-    }
+    const input = Buffer.from(await file.arrayBuffer());
+    const output = await convertImageBuffer(input, format, {
+      quality: Number.isFinite(quality) ? quality : 82,
+    });
 
-    // Clean OUTPUT_FOLDER before new conversions
-    const existingFiles = await fs.readdir(OUTPUT_FOLDER);
-    for (const file of existingFiles) {
-      await fs.unlink(path.join(OUTPUT_FOLDER, file));
-    }
+    const name = outputFileName(file.name, format);
 
-    const convertedFiles: string[] = [];
-
-    for (const image of images) {
-      const buffer = Buffer.from(await image.arrayBuffer());
-      const fileName = image.name;
-      const cleanFileName = path.parse(fileName).name;
-      const outputFileName = `${cleanFileName}.${format}`;
-      const outputPath = path.join(OUTPUT_FOLDER, outputFileName);
-
-      // Save uploaded file temporarily
-      const inputPath = path.join(UPLOADS_FOLDER, fileName);
-      await fs.writeFile(inputPath, buffer);
-
-      // Convert image
-      await sharp(inputPath).toFormat(format as any).toFile(outputPath);
-
-      convertedFiles.push(`/converted-images/${outputFileName}`);
-    }
-
-    return NextResponse.json(
-      { message: "Conversion réussie", files: convertedFiles },
-      { status: 200 }
-    );
+    return new Response(new Uint8Array(output), {
+      status: 200,
+      headers: {
+        "Content-Type": OUTPUT_FORMATS[format].mime,
+        "Content-Length": String(output.length),
+        "Content-Disposition": `attachment; filename="${name}"`,
+        "X-File-Name": name,
+        "Cache-Control": "no-store",
+      },
+    });
   } catch (error) {
-    console.error("❌ Erreur de conversion :", error);
+    console.error("[convert] échec :", error);
     return NextResponse.json(
-      { error: (error as Error).message },
+      { error: "La conversion a échoué. Le fichier est peut-être corrompu ou dans un format non lisible." },
       { status: 500 }
     );
   }
